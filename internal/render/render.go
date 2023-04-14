@@ -2,8 +2,9 @@ package render
 
 import (
 	"bytes"
-	"github.com/SayaHoribe/go_booking/pkg/config"
-	"github.com/SayaHoribe/go_booking/pkg/models"
+	"github.com/SayaHoribe/go_booking/internal/config"
+	"github.com/SayaHoribe/go_booking/internal/models"
+	"github.com/justinas/nosurf"
 	"html/template"
 	"log"
 	"net/http"
@@ -16,12 +17,13 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.CSRFToken = nosurf.Token(r)
 	return td
 }
 
 // RenderTemplate renders a template
-func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 
 	if app.UseCache {
@@ -30,13 +32,13 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData)
 		tc, _ = CreateTemplateCache()
 	}
 
-	// get requested template from cahche
+	// get requested template from cache
 	t, ok := tc[tmpl]
 	if !ok {
 		log.Fatal("could not get template from template cache")
 	}
 	buf := new(bytes.Buffer)
-	td = AddDefaultData(td)
+	td = AddDefaultData(td, r)
 	_ = t.Execute(buf, td)
 
 	// render the template
