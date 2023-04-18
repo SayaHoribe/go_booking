@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"github.com/SayaHoribe/go_booking/internal/config"
 	"github.com/SayaHoribe/go_booking/internal/handlers"
+	"github.com/SayaHoribe/go_booking/internal/models"
 	"github.com/SayaHoribe/go_booking/internal/render"
 	"github.com/alexedwards/scs/v2"
 	"log"
@@ -18,6 +20,9 @@ var session *scs.SessionManager
 
 // main is the main function
 func main() {
+	// what I am going to pu in the session
+	gob.Register(models.Reservation{})
+
 	//change this to true when in production
 	app.InProduction = false
 
