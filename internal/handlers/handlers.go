@@ -3,10 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/SayaHoribe/go_booking/driver"
 	"github.com/SayaHoribe/go_booking/internal/config"
 	"github.com/SayaHoribe/go_booking/internal/forms"
 	"github.com/SayaHoribe/go_booking/internal/models"
 	"github.com/SayaHoribe/go_booking/internal/render"
+	"github.com/SayaHoribe/go_booking/internal/repository"
+	"github.com/SayaHoribe/go_booking/internal/repository/dbrepo"
 	"log"
 	"net/http"
 )
@@ -17,12 +20,14 @@ var Repo *Repository
 // Repository the repository type
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatbaseRepo
 }
 
 // NewRepo create a new repository
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -153,7 +158,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	m.App.Session.Remove(r.Context(), "reservation")
+	m.App.Session.Remove(r.Context(), "reservateion")
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
 
